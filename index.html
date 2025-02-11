@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雲科數媒系XD人型測驗</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            /* margin: 20px; */
+            background-position: center;
+            transition: 0.5s ease;
+            background-size: auto 100%;
+            /* 強制填滿視窗 */
+            background-repeat: repeat;
+            /* height: 95vh; */
+            /* overflow-y: hidden;
+            overflow-x: hidden; */
+
+        }
+
+        #quiz-container,
+        #result-container {
+            display: none;
+        }
+
+        /* 選項 */
+        #options-container button {
+            margin: 2px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            /* 線框 */
+            background: rgba(255, 255, 2255, 0.0);
+            border: rgba(255, 255, 2255, 0.0);
+        }
+
+        #start-button {
+            background: rgba(255, 255, 2255, 0.0);
+            border: rgba(255, 255, 2255, 0.0);
+        }
+
+       
+
+        #progress-bar-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            height: 20px;
+            margin: 3% 0;
+            display: none;
+            /* Hide progress bar initially */
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #020202;
+        }
+
+        /* 控制  選項  圖片尺寸 */
+        #options-container img {
+            display: block;
+            margin: 0 auto;
+            width: 25%;
+            height: auto;
+
+        }
+
+        /* 控制  問題  圖片尺寸 */
+        #question-image {
+            max-width: 25%;
+            margin-bottom: 0px;
+        }
+
+
+
+
+
+        /* 控制  測驗結果  圖片尺寸 */
+        #result-image {
+
+            width:  25%;
+
+            
+        }
+
+
+
+        /* 響應式圖片改變尺寸_手機 */
+        @media (max-width: 1024px) {
+
+            /* 控制  開頭  圖片尺寸 */
+            #startbutton01 {
+                width: 80% !important;
+               
+            }
+
+            #startbutton02 {
+                width: 102% !important;
+                padding-right: 7%;
+                padding-left: -1%;
+                margin-top: 5% !important;
+            }
+
+            #startbutton03 {
+                width: 60% !important;
+                margin-bottom: 15% !important;
+                margin-top: -7% !important;
+                
+            }
+
+            /* 控制  選項  圖片尺寸 */
+            #options-container img {
+                width: 92%;
+            }
+
+            /* 控制  問題  圖片尺寸 */
+            #question-image {
+                max-width: 90%;
+
+            }
+
+            /* 控制  測驗結果  圖片尺寸 */
+            #result-image {
+                width: 90%;
+            }
+
+            #progress-bar-container {
+                margin: 10% 0;
+            }
+
+        }
+    </style>
+</head>
+
+<body style=" background-image: url('img/封面/封面_背景.png'); ">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <!-- 測驗封面 -->
+    <div class="container">
+        <!-- <img id="startbutton01" src="img/封面/封面_logo.png" style="width: 20%; margin: 1%; margin-top: 3%;"> -->
+    </div>
+    <div class="container2" >
+        <img id="startbutton02" src="img/封面/封面_圖.png" style="width: 23% ; margin-top: 2%; ">
+    </div>
+
+    <!-- 開始按鈕 -->
+    <button id="start-button" onclick="startQuiz()" >
+        <img id="startbutton03" src="img/封面/封面_按鈕.png" style="width: 30%;  margin-bottom: 10%; ">
+    </button>
+
+    <!-- 問題容器 -->
+    <div id="quiz-container">
+        <h2 id="question-text"></h2>
+        <img id="question-image" src="">
+        <div id="options-container"></div>
+    </div>
+
+    <!-- 進度條 -->
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <!-- 測驗結果容器 -->
+    <div id="result-container">
+        <p id="result-text"></p>
+        <img id="result-image" src="" alt="" />
+    </div>
+
+    <script>
+        // 計算分數陣列
+        let scores = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let start = [0, 0];
+        let currentQuestionIndex = 0;
+        let allQuestion = 12;
+
+        // 隱藏與顯示開始測驗相關的內容
+        function startQuiz() {
+            document.querySelector(".container").style.display = "none";
+            document.querySelector(".container2").style.display = "none";
+            document.getElementById("start-button").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            document.getElementById('progress-bar-container').style.display = 'block';
+            document.body.style.backgroundImage = "none";
+
+
+
+
+
+
+
+            // 顯示第一個問題
+            updateQuestion();
+        }
+
+        // 進度條
+        function updateProgressBar() {
+            var progressBar = document.getElementById('progress-bar');
+            // 計算進度%
+            var progress = (currentQuestionIndex / allQuestion) * 100;
+            // 進度條寬度
+            progressBar.style.width = progress + '%';
+        }
+
+        //所有問題 scores[-1]記得減一 
+        const questions = [
+            //開頭，問題前導
+            {
+                image: "img/開頭/開始_文字.png",
+                background: "img/開頭/開頭_背景.png",
+                options: [
+                    {
+                        // text: "開始摸索",
+                        image: "img/開頭/開頭_按鈕.png",
+                        action: () => {
+                            start[0] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題1
+            {
+                image: "img/01/01_q.png",
+                background: "img/01/01_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/01/01_選項 (1).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[3] += 1;
+                            scores[6] += 1;
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/01/01_選項 (2).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[4] += 1;
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/01/01_選項 (3).png",
+                        action: () => {
+                            scores[5] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/01/01_選項 (4).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[7] += 1;
+
+                        }
+                    }
+                ],
+
+            },
+            //問題2
+            {
+                image: "img/02/02_題目.png",
+                background: "img/02/02_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/02/02_選項 (1).png",
+                        action: () => {
+                            scores[3] += 1;
+                            scores[4] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/02/02_選項 (2).png",
+                        action: () => {
+                            scores[6] += 1;
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/02/02_選項 (3).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[5] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/02/02_選項 (4).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[2] += 1;
+                            scores[7] += 1;
+
+                        }
+                    }
+                ],
+
+            },
+            //問題3
+            {
+                image: "img/03/03_題目.png",
+                background: "img/03/03_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/03/03_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[2] += 1;
+                            scores[4] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/03/03_選項 (2).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[3] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/03/03_選項 (3).png",
+                        action: () => {
+                            scores[6] += 1;
+
+
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/03/03_選項 (4).png",
+                        action: () => {
+                            scores[5] += 1;
+                            scores[7] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題4
+            {
+                image: "img/04/04_題目.png",
+                background: "img/04/04_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/04/04_選項 (1).png",
+                        action: () => {
+                            scores[3] += 1;
+                            scores[6] += 1;
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/04/04_選項 (2).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[5] += 1;
+                            scores[8] += 1;
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/04/04_選項 (3).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[4] += 1;
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/04/04_選項 (4).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[7] += 1;
+                        }
+                    },
+                ],
+
+            },
+            //問題5
+            {
+                image: "img/05/05_題目.png",
+                background: "img/05/05_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/05/05_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[5] += 1;
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/05/05_選項 (2).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/05/05_選項 (3).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[4] += 1;
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/05/05_選項 (4).png",
+                        action: () => {
+                            scores[3] += 1;
+                            scores[6] += 1;
+                            scores[7] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題6
+            {
+                image: "img/06/06_題目.png",
+                background: "img/06/06_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/06/06_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[1] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/06/06_選項 (2).png",
+                        action: () => {
+                            scores[6] += 1;
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/06/06_選項 (3).png",
+                        action: () => {
+                            scores[3] += 1;
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/06/06_選項 (4).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[4] += 1;
+                            scores[5] += 1;
+                            scores[7] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題7
+            {
+                image: "img/07/07_題目.png",
+                background: "img/07/07_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/07/07_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[2] += 1;
+                            scores[7] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/07/07_選項 (2).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[3] += 1;
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/07/07_選項 (3).png",
+                        action: () => {
+                            scores[5] += 1;
+                            scores[8] += 1;
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/07/07_選項 (4).png",
+                        action: () => {
+                            scores[4] += 1;
+                            scores[6] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題8
+            {
+                image: "img/08/08_題目.png",
+                background: "img/08/08_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/08/08_選項 (1).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[8] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/08/08_選項 (2).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[7] += 1;
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/08/08_選項 (3).png",
+                        action: () => {
+                            scores[3] += 1;
+                            scores[6] += 1;
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/08/08_選項 (4).png",
+                        action: () => {
+                            scores[4] += 1;
+                        }
+                    },
+                ],
+
+            },
+            //問題9
+            {
+                image: "img/09/09_題目.png",
+                background: "img/09/09_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/09/09_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[2] += 1;
+                            scores[4] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/09/09_選項 (2).png",
+                        action: () => {
+                            scores[6] += 1;
+                            scores[7] += 1;
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/09/09_選項 (3).png",
+                        action: () => {
+                            scores[3] += 1;
+                            scores[8] += 1;
+
+
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/09/09_選項 (4).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[5] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //問題10
+            {
+                image: "img/10/10_題目.png",
+                background: "img/10/10_背景.png",
+                options: [
+                    {
+                        //選項1
+                        image: "img/10/10_選項 (1).png",
+                        action: () => {
+                            scores[0] += 1;
+                            scores[5] += 1;
+                            scores[7] += 1;
+
+                        }
+                    },
+                    {
+                        //選項2
+                        image: "img/10/10_選項 (2).png",
+                        action: () => {
+                            scores[4] += 1;
+
+
+                        }
+                    },
+                    {
+                        //選項3
+                        image: "img/10/10_選項 (3).png",
+                        action: () => {
+                            scores[1] += 1;
+                            scores[3] += 1;
+                            scores[8] += 1;
+
+
+                        }
+                    },
+                    {
+                        //選項4
+                        image: "img/10/10_選項 (4).png",
+                        action: () => {
+                            scores[2] += 1;
+                            scores[6] += 1;
+                        }
+                    },
+
+                ],
+
+            },
+            //結尾
+            {
+                image: "img/結束/結束_文字.png",
+                background: "img/結束/結束_背景.png" ,
+                imageStyle: {
+                   },
+                
+                options: [
+                    {
+                        // text: "開始摸索",
+                        image: "img/結束/結束_按鈕.png",
+                       
+                        action: () => {
+                            start[0] += 1;
+                        }
+                    },
+
+                ],
+
+            }
+        ];
+
+        // 載入圖片的工具函式
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error(`圖片載入失敗：${url}`));
+            });
+        }
+
+        // 更新問題與選項
+        async function updateQuestion() {
+            const question = questions[currentQuestionIndex];
+
+            try {
+                // 等待背景和問題圖片載入完成
+                const questionImagePromise = loadImage(question.image);
+                const backgroundPromise = loadImage(question.background);
+
+                const optionPromises = question.options.map(option => loadImage(option.image));
+
+                // 等待所有圖片載入完成
+                await Promise.all([questionImagePromise, backgroundPromise, ...optionPromises]);
+
+                // 更新問題文字
+                document.getElementById("question-text").textContent = question.text;
+
+                // 更新問題圖片
+                const questionImage = document.getElementById("question-image");
+                questionImage.src = question.image;
+                questionImage.alt = `問題 ${currentQuestionIndex + 1} 的圖片`;
+
+                // 更新背景
+                document.body.style.backgroundImage = `url('${question.background}')`;
+
+                // 清空舊選項
+                const optionsContainer = document.getElementById("options-container");
+                optionsContainer.innerHTML = "";
+
+                // 為每個選項生成按鈕
+                question.options.forEach(option => {
+                    const button = document.createElement("button");
+
+                    // 建立選項圖片
+                    const img = document.createElement("img");
+                    img.src = option.image;
+                    img.alt = "選項圖片";
+
+                    // 建立選項文字
+                    const span = document.createElement("span");
+                    span.textContent = option.text;
+
+                    // 將圖片和文字加到按鈕內
+                    button.appendChild(img);
+                    button.appendChild(span);
+
+                    img.onclick = () => {
+                        option.action();
+                        console.log("圖片被點擊，執行 action()");
+                        nextQuestion();
+                    };
+                    // button.onclick = () => {
+                    //     option.action(); // 執行該選項的分數累加邏輯
+                    //     console.log("按鈕被點擊，執行 action()");
+                    //     nextQuestion();
+                    // };
+
+                    optionsContainer.appendChild(button);
+                });
+            } catch (error) {
+                // console.error("圖片載入失敗：", error);
+            }
+        }
+
+
+        // 更新下一題或顯示結果
+        function nextQuestion() {
+            console.log("進入 nextQuestion()，目前題目索引：" + currentQuestionIndex);
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                updateQuestion(); // 更新下一題
+                updateProgressBar();
+                console.log(scores);
+                console.log(currentQuestionIndex);
+            } else {
+                showResult(); // 顯示測驗結果
+            }
+        }
+
+        // 隱藏測驗問題，顯示結果區域
+        function showResult() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("result-container").style.display = "block";
+            document.getElementById('progress-bar-container').style.display = 'none';
+            console.log("結果陣列：", scores);
+
+            const maxScore = Math.max(...scores); // 找出最高分
+            const resultIndex = scores.indexOf(maxScore); // 找出最高分的索引
+            scores[resultIndex] += 1;
+
+            const resultImages = [
+                "img/測驗結果/01_規則磁碟.png", // 對應第 1 型人
+                "img/測驗結果/02_關懷磁碟.png", // 對應第 2 型人
+                "img/測驗結果/03_成功磁碟.png",// 對應第 3 型人
+                "img/測驗結果/04_獨特磁碟.png",  // 對應第 4 型人
+                "img/測驗結果/05_知識磁碟.png",
+                "img/測驗結果/06_安全磁碟.png",
+                "img/測驗結果/07_快樂磁碟.png",
+                "img/測驗結果/08_力量磁碟.png",
+                "img/測驗結果/09_和諧磁碟.png",
+            ];
+
+            //document.getElementById("result-text").textContent = `你是第 ${resultIndex + 1} 型人`;
+
+            // 更新對應的結果圖片
+            const resultImageElement = document.getElementById("result-image");
+            resultImageElement.src = resultImages[resultIndex];
+            //resultImageElement.alt = `你是第 ${resultIndex + 1} 型人的圖片`;
+        }
+    </script>
+</body>
+
+</html>
